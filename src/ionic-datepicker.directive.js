@@ -1,11 +1,9 @@
 //By Rajeshwar Patlolla - rajeshwar.patlolla@gmail.com
 //https://github.com/rajeshwarpatlolla
-
 (function () {
   'use strict';
 
-  angular.module('ionic-datepicker')
-    .directive('ionicDatepicker', IonicDatepicker);
+  angular.module('ionic-datepicker').directive('ionicDatepicker', IonicDatepicker);
 
   IonicDatepicker.$inject = ['$ionicPopup', '$ionicModal', 'IonicDatepickerService'];
   function IonicDatepicker($ionicPopup, $ionicModal, IonicDatepickerService) {
@@ -217,7 +215,6 @@
             if (tempDate.getDate() == current_date.getDate()) {
               scope.dateSelected(scope.dayList[scope.dayList.length - 1]);
             }
-            ;
           }
 
           //To set Monday as the first day of the week.
@@ -238,9 +235,6 @@
           scope.currentYearSelected = scope.currentYear;
 
           scope.numColumns = 7;
-          //scope.rows.length = 6;
-          //scope.cols.length = scope.numColumns;
-
         };
 
         scope.monthChanged = function (month) {
@@ -292,7 +286,37 @@
           scope.date_selection.selected = true;
           scope.date_selection.selectedDate = new Date(date.dateString);
           scope.selectedDateFull = scope.date_selection.selectedDate;
+
+          if (scope.closeOnSelect) {
+            dateSelected();
+
+            if (scope.templateType.toLowerCase() === 'modal') {
+              scope.closeModal();
+            } else {
+              scope.popup.close();
+            }
+          }
         };
+
+        //Called when the user clicks on any date.
+        function dateSelected() {
+          scope.date_selection.submitted = true;
+          if (scope.date_selection.selected === true) {
+            // This will prevent setting disabled dates... although it closes popup
+            var outSideToFrom = false;
+            if (scope.inputObj.from && scope.inputObj.from > scope.date_selection.selectedDate) {
+              outSideToFrom = true;
+            }
+            if (scope.inputObj.to && scope.inputObj.to < scope.date_selection.selectedDate) {
+              outSideToFrom = true
+            }
+            if (outSideToFrom == true) {
+              scope.inputObj.callback(undefined);
+            } else {
+              scope.inputObj.callback(scope.date_selection.selectedDate);
+            }
+          }
+        }
 
         var selectedInputDateObject = {
           dateObj: scope.ipDate,
@@ -306,21 +330,6 @@
         };
         scope.dateSelected(selectedInputDateObject);
 
-        // Watch for selected date change
-        scope.$watch('date_selection.selectedDate', function (newVal, oldVal) {
-          // Close modal/popup if date selected
-          if (scope.closeOnSelect) {
-
-            dateSelected();
-
-            if (scope.templateType.toLowerCase() === 'modal') {
-              scope.closeModal();
-            } else {
-              scope.popup.close();
-            }
-          }
-        });
-
         //Called when the user clicks on any date.
         function dateCleared() {
           scope.date_selection.submitted = true;
@@ -332,28 +341,6 @@
           scope.inputObj.inputDate = undefined;
           scope.inputObj.callback(undefined);
           // Please handle null/undefined condition in call back
-        }
-
-        //Called when the user clicks on any date.
-        function dateSelected() {
-          scope.date_selection.submitted = true;
-          if (scope.date_selection.selected === true) {
-            // This will prevent setting disabled dates... although it closes popup
-            var outSideToFrom = false;
-            if (scope.inputObj.from && scope.inputObj.from > scope.date_selection.selectedDate) {
-              outSideToFrom = true;
-            }
-            ;
-            if (scope.inputObj.to && scope.inputObj.to < scope.date_selection.selectedDate) {
-              outSideToFrom = true
-            }
-            ;
-            if (outSideToFrom == true) {
-              scope.inputObj.callback(undefined);
-            } else {
-              scope.inputObj.callback(scope.date_selection.selectedDate);
-            }
-          }
         }
 
         //Called when the user clicks on the 'Today' button
@@ -452,5 +439,4 @@
       }
     };
   }
-
 })();
